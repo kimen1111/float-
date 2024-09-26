@@ -38,6 +38,7 @@ public class FloatingWindowManager {
     private WebChromeClient.CustomViewCallback customViewCallback;
     private View customView;
     private boolean isReloading = false;  // リロード中かどうかを追跡するフラグ
+    private boolean ReloadFlag = false;
     private Handler handler = new Handler();
     private float youtubePlaybackTime = 0;
 
@@ -165,7 +166,12 @@ public class FloatingWindowManager {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                restoreYoutubePlaybackTime();
+                if (ReloadFlag ==true){
+                    restoreYoutubePlaybackTime();
+                    ReloadFlag=false;
+                }
+
+
                 // WebView から現在の URL を取得して EditText に表示
 
                 //String currentUrl = webView.getUrl();  // WebView から現在のURLを取得
@@ -237,11 +243,13 @@ public class FloatingWindowManager {
                         if (currentY - initialY > SWIPE_THRESHOLD && webView.getScrollY() == 0 && !isReloading && isLongPress) {
                             saveYoutubePlaybackTime();  // 再生時間を保存
                             isReloading = true;
+                            ReloadFlag = true;
                             webView.reload();  // ページをリロード
+
 
                             handler.postDelayed(() -> {
                                 isReloading = false;
-                                //restoreYoutubePlaybackTime();  // ページリロード後に再生時間を復元
+
                             }, 500);
                         }
                         break;
